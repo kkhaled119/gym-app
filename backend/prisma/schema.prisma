@@ -1,0 +1,41 @@
+
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(uuid())
+  firstName String
+  lastName  String
+  email String @unique
+  birthDate DateTime? @db.Date
+  type UserRole @default(TRAINEE)
+  passwordHash String?
+  gender Gender?
+  avatarUrl String?
+  height Decimal? @db.Decimal(5, 2)
+   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  TRAINEE
+  COACH
+  ADMIN
+}
+
+enum Gender {
+  MAILE
+  FEMALE
+}
+
+enum  WeightUnit {
+  KG
+  LB
+}
