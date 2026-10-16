@@ -1,8 +1,8 @@
 import { prisma } from "../../lib/prisma.ts";
-import type { LoginInput, SignupInput } from "./authSchema.ts";
+import type { LoginInput, logoutInput, SignupInput } from "./authSchema.ts";
 import bcrypt from "bcrypt";
 import { AppError } from "../../utils/AppError.ts";
-import { createTokens } from "./tokenService.ts";
+import { createTokens, hashToken } from "./tokenService.ts";
 
 export const signUp = async (data: SignupInput) => {
   const findUser = await prisma.user.findUnique({
@@ -55,4 +55,14 @@ export const login = async (data: LoginInput) => {
   const tokens = await createTokens(user);
 
   return { user, ...tokens };
+};
+
+export const logoutUser = async (refreshToken: string) => {
+  await prisma.refreshToken.updateMany({
+    where: {
+      tokenHash: hashToken(refreshToken),
+      revokedAt: null,
+    },
+    data: { revoked: new Date() },
+  });
 };
