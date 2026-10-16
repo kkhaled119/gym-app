@@ -1,5 +1,3 @@
-
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -10,18 +8,22 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  firstName String
-  lastName  String
-  email String @unique
-  birthDate DateTime? @db.Date
-  type UserRole @default(TRAINEE)
-  passwordHash String?
-  gender Gender?
-  avatarUrl String?
-  height Decimal? @db.Decimal(5, 2)
-   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String            @id @default(uuid())
+  firstName     String
+  lastName      String
+  email         String            @unique
+  birthDate     DateTime?         @db.Date
+  type          UserRole          @default(TRAINEE)
+  passwordHash  String?
+  gender        Gender?
+  avatarUrl     String?
+  height        Decimal?          @db.Decimal(5, 2)
+  weightUnit    WeightUnit        @default(KG)
+  measurements  BodyMeasurement[]
+  onboardedAt   DateTime?
+  refreshTokens RefreshToken[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }
 
 enum UserRole {
@@ -31,11 +33,40 @@ enum UserRole {
 }
 
 enum Gender {
-  MAILE
+  MALE
   FEMALE
 }
 
-enum  WeightUnit {
+enum WeightUnit {
   KG
   LB
+}
+
+model BodyMeasurement {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weight     Decimal? @db.Decimal(5, 2)
+  bodyFat    Decimal? @db.Decimal(4, 1)
+  waist      Decimal? @db.Decimal(5, 2)
+  chest      Decimal? @db.Decimal(5, 1)
+  arm        Decimal? @db.Decimal(5, 1)
+  note       String?
+  thigh      Decimal? @db.Decimal(5, 1)
+  measuredAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([userId, measuredAt])
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revoked DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
