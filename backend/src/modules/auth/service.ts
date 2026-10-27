@@ -63,6 +63,24 @@ export const logoutUser = async (refreshToken: string) => {
       tokenHash: hashToken(refreshToken),
       revokedAt: null,
     },
-    data: { revoked: new Date() },
+    data: { revokedAt: new Date() },
   });
+};
+
+export const refreshTokens = async (refreshToken: string) => {
+  const stored = await prisma.refreshToken.findUnique({
+    where: { tokenHash: hashToken(refreshToken) },
+    include: { user: { select: { id: true, type: true } } },
+  });
+
+  if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
+    throw new AppError("Invalid or expired refresh token", 401);
+  }
+
+  await prisma.refreshToken.update({
+    where: { id: stored.id },
+    data: { revokedAt: new Date() },
+  });
+
+  return createTokens(stored.user);
 };
