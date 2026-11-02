@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { login, logoutUser, signUp } from "./service.ts";
+import { login, logoutUser, refreshTokens, signUp } from "./service.ts";
 import { httpStatus } from "../../utils/htttpStatus.ts";
 
 export const register = async (req: Request, res: Response) => {
@@ -17,6 +17,14 @@ export const signin = async (req: Request, res: Response) => {
     status: httpStatus.SUCCESS,
     message: "Logged in successfully",
     ...result,
+  });
+};
+
+export const refresh = async (req: Request, res: Response) => {
+  const tokens = await refreshTokens(req.body.refreshToken);
+  res.status(200).json({
+    status: httpStatus.SUCCESS,
+    ...tokens,
   });
 };
 
