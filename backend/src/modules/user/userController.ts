@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { getAllUsers, getUserById, updateUser } from "./service.ts";
+import { completeOnboarding, getAllUsers, getUserById, updateUser } from "./service.ts";
 import { httpStatus } from "../../utils/htttpStatus.ts";
 
 export const getMe = async (req: Request<{ id: string }>, res: Response) => {
@@ -24,4 +24,10 @@ export const updateMe = async (req: Request, res: Response) => {
     message: "Profile update successfully",
     user,
   });
+};
+export const completeMyOnboarding = async (req: Request, res: Response) => {
+  const user = await completeOnboarding(req.user!.id);
+  res
+    .status(200)
+    .json({ status: httpStatus.SUCCESS, message: "Onboarding completed successfully", user });
 };
